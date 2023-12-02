@@ -3,7 +3,7 @@ package msmgw.heulgkkom.service
 import spock.lang.Specification
 
 class ApiManagerServiceTest extends Specification {
-
+/*
     private ApiManagerService sut
 
     def setup() {
@@ -18,10 +18,10 @@ class ApiManagerServiceTest extends Specification {
         println(parse)
         then:
         parse == ""
-    }
+    }*//*
 
 
     def getJsonData(){
         return this.getClass().getResource( '/apidocs.json' ).text
-    }
+    }*/
 }

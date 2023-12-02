@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
 @Configuration
-@EntityScan(basePackages = {"org.msmgw.manager"})
+@EntityScan(basePackages = {"msmgw.heulgkkom"})
 @EnableJpaRepositories(basePackages = {"msmgw.heulgkkom"})
 public class QuerydslConfig {
     @PersistenceContext

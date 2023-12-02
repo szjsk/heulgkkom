@@ -26,10 +26,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
 
     // spring security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    testImplementation 'org.springframework.security:spring-security-test'
+    //implementation 'org.springframework.boot:spring-boot-starter-security'
+    //implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    //implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    //Implementation 'org.springframework.security:spring-security-test'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation 'io.swagger.parser.v3:swagger-parser-v3:2.1.18'
