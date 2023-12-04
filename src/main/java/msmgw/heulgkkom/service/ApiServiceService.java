@@ -1,6 +1,7 @@
 package msmgw.heulgkkom.service;
 
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import msmgw.heulgkkom.entity.ApiService;
 import msmgw.heulgkkom.model.ServiceManagerDto;
@@ -13,26 +14,27 @@ public class ApiServiceService {
 
     private final ApiServiceRepository apiServiceRepository;
 
-    public ApiService insertService(ServiceManagerDto param){
+    public ApiService insertService(ServiceManagerDto param, String userId){
 
         ApiService data = ApiService.builder()
             .serviceName(param.getServiceName())
             .status(param.getStatus())
-            .created("todo")
+            .created(userId)
             .build();
 
         return apiServiceRepository.save(data);
     }
 
-    public ApiService updateService(ServiceManagerDto param){
+    public ApiService updateService(ServiceManagerDto param, String userId){
 
         ApiService data = apiServiceRepository.findById(param.getServiceId())
             .orElseThrow(() -> new IllegalArgumentException("can not found id"));
 
+        //service name must unique in database
         data.setServiceName(param.getServiceName());
         data.setServiceDesc(param.getServiceDesc());
         data.setStatus(param.getStatus());
-        data.setModifier("todo");
+        data.setModifier(userId);
 
         return apiServiceRepository.save(data);
     }
@@ -40,5 +42,9 @@ public class ApiServiceService {
     public ApiService getService(long serviceId){
         return apiServiceRepository.findById(serviceId)
             .orElseThrow(() -> new IllegalArgumentException("can not found id"));
+    }
+
+    public List<ApiService> retrieveServices(){
+        return apiServiceRepository.findAll();
     }
 }
