@@ -18,6 +18,7 @@ public class ApiServiceService {
 
         ApiService data = ApiService.builder()
             .serviceName(param.getServiceName())
+            .serviceDesc(param.getServiceDesc())
             .status(param.getStatus())
             .created(userId)
             .build();

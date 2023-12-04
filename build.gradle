@@ -33,6 +33,7 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation 'io.swagger.parser.v3:swagger-parser-v3:2.1.18'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // persistence
     implementation "org.springframework.boot:spring-boot-starter-data-jdbc"

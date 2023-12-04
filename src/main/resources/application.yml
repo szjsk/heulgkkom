@@ -16,5 +16,11 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+
 server:
   port: 8079
