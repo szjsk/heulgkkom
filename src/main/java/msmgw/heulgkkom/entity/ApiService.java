@@ -55,5 +55,5 @@ public class ApiService implements Serializable {
 
   @CreationTimestamp
   @Column(name = "modifed_at", columnDefinition = "TIMESTAMP")
-  private LocalDateTime modifed_at;
+  private LocalDateTime modifiedAt;
 }

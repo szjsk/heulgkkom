@@ -33,7 +33,7 @@ public class ApiDomain implements Serializable {
   @Column(name = "service_id")
   private Long serviceId;
 
-  @Column(name = "group")
+  @Column(name = "\"group\"")
   private String group;
 
   @Column(name = "url")
@@ -54,6 +54,6 @@ public class ApiDomain implements Serializable {
 
   @CreationTimestamp
   @Column(name = "modifed_at", columnDefinition = "TIMESTAMP")
-  private LocalDateTime modifedAt;
+  private LocalDateTime modifiedAt;
 
 }

@@ -58,12 +58,12 @@
       <div class="row g-4">
         <div class="col-sm-12 col-xl-6">
           <div class="bg-light rounded h-100 p-4">
-            <div id="example-table" class="table table-hover"></div>
+            <div id="service-table" class="table table-hover"></div>
           </div>
         </div>
         <div class="col-sm-12 col-xl-6">
           <div class="bg-light rounded h-100 p-4">
-            <h6 class="mb-4">Save Service Form</h6>
+            <h6 class="mb-4">Save Service Form <button class="btn btn-info" onclick="initService()">New</button></h6>
               <div class="mb-3">
                 <label for="inputServiceId" class="form-label">Service Id</label>
                 <input type="text" class="form-control" id="inputServiceId" readonly>
@@ -82,12 +82,53 @@
               </div>
               <div class="mb-3">
                 <select id="serviceStatus" class="form-select form-select-sm mb-3" aria-label=".form-select-sm example">
-                  <option value="PREPARE">PREPARE</option>
+                  <option value="PREPARE" selected>PREPARE</option>
                   <option value="USE">USE</option>
                   <option value="DEPRECATE">DEPRECATE</option>
                 </select>
               </div>
-              <button id="saveService" class="btn btn-primary" onclick="createService()">Save</button>
+
+              <button id="saveService" class="btn btn-primary" onclick="upsertService()">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-sm-12 col-xl-6">
+          <div class="bg-light rounded h-100 p-4">
+            <div id="domain-table" class="table table-hover"></div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+          <div class="bg-light rounded h-100 p-4">
+            <h6 class="mb-4">Save Domain Form </h6>
+            <div class="mb-3">
+              <label for="inputDomainServiceId" class="form-label">Service Id</label>
+              <input type="text" class="form-control" id="inputDomainServiceId" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputDomainId" class="form-label">Domain Id</label>
+              <input type="text" class="form-control" id="inputDomainId" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputUrl" class="form-label">Url</label>
+              <input type="text" class="form-control" id="inputUrl"
+                     aria-describedby="urlHelp">
+              <div id="urlHelp" class="form-text">http~부터 시작하는 domain 마지막 / 제외.</div>
+            </div>
+            <div class="mb-3">
+              <label for="inputToken" class="form-label">Token</label>
+              <input type="text" class="form-control" id="inputToken"
+                     aria-describedby="tokenHelp">
+              <div id="tokenHelp" class="form-text">Client Credential Token</div>
+            </div>
+            <div class="mb-3">
+              <select id="domainGroup" class="form-select form-select-sm mb-3" aria-label=".form-select-sm">
+                <option value="dev" selected>dev</option>
+                <option value="prd">prd</option>
+              </select>
+            </div>
+
+            <button id="saveDomain" class="btn btn-primary" onclick="upsertDomain()">Save</button>
           </div>
         </div>
       </div>
@@ -122,22 +163,55 @@
 <script src="js/main.js"></script>
 <script src="js/init.js"></script>
 <script>
-  function createService() {
+  function upsertService() {
+    const serviceId = $("#inputServiceId").val();
     $.ajax({
-      type: "post",
+      type: serviceId ? "put":"post",
       url: "/service",
       data: {
+        serviceId: serviceId,
         serviceName: $("#inputServiceName").val(),
         serviceDesc: $("#inputServiceDesc").val(),
         status: $('#serviceStatus').find(":selected").val()
       },
       success: function (data) {
-        console.log(data)
+        getServiceList();
+        console.log(data);
       },
       error: function (xhr) {
         console.log(xhr.status + ":" + xhr.statusText)
       }
     });
+  }
+
+
+  function upsertDomain() {
+    const domainId = $("#inputDomainId").val();
+    $.ajax({
+      type: domainId ? "put":"post",
+      url: "/domain",
+      data: {
+        serviceId: $("#inputDomainServiceId").val(),
+        domainId: domainId,
+        url: $("#inputUrl").val(),
+        token: $("#inputToken").val(),
+        group: $('#domainGroup').find(":selected").val()
+      },
+      success: function (data) {
+        getDomainList($("#inputDomainServiceId").val());
+        console.log(data);
+      },
+      error: function (xhr) {
+        console.log(xhr.status + ":" + xhr.statusText)
+      }
+    });
+  }
+
+  function initService(){
+    $("#inputServiceId").val("")
+    $("#inputServiceName").val("")
+    $("#inputServiceDesc").val("")
+    $("#serviceStatus").val("PREPARE")
   }
 
   function getServiceList(){
@@ -153,10 +227,56 @@
     });
   }
 
+  function getDomainList(serviceId){
+    $.ajax({
+      type: "get",
+      url: "/domain/"+serviceId,
+      success: function (data) {
+        _domainTable.setData(data);
+      },
+      error: function (xhr) {
+        console.log(xhr.status + ":" + xhr.statusText)
+      }
+    });
+  }
+
   let _table;
+  let _domainTable;
 
   $(document).ready( function() {
-    _table = new Tabulator("#example-table", {
+    initServiceTable()
+    initDomainTable()
+
+
+    getServiceList();
+  });
+
+
+  function initDomainTable(){
+    _domainTable = new Tabulator("#domain-table", {
+      height : "450px",
+      layout:"fitDataStretch",
+      columns:[
+        {title:"group", field:"group"},
+        {title:"url", field:"url"}
+      ],
+    });
+
+    _domainTable.on("rowClick", function(e, row){
+      //e - the click event object
+      //row - row component
+
+      $("#inputDomainServiceId").val(row._row.data.serviceId)
+      $("#inputDomainId").val(row._row.data.domainId)
+      $("#inputUrl").val(row._row.data.url)
+      $("#domainGroup").val(row._row.data.group)
+      $("#inputToken").val(row._row.data.token)
+
+    });
+  }
+
+  function initServiceTable(){
+    _table = new Tabulator("#service-table", {
       height : "450px",
       layout:"fitDataStretch",
       columns:[
@@ -166,8 +286,20 @@
       ],
     });
 
-    getServiceList();
-  });
+    _table.on("rowClick", function(e, row){
+      $("#inputServiceId").val(row._row.data.serviceId)
+      $("#inputServiceName").val(row._row.data.serviceName)
+      $("#inputServiceDesc").val(row._row.data.serviceDesc)
+      $("#serviceStatus").val(row._row.data.status)
+
+      $("#inputDomainServiceId").val(row._row.data.serviceId)
+      $("#inputDomainId").val("");
+      $("#inputUrl").val("");
+      $("#inputToken").val("");
+      $("#domainGroup").val("dev");
+      getDomainList(row._row.data.serviceId)
+    });
+  }
 
 </script>
 </body>
