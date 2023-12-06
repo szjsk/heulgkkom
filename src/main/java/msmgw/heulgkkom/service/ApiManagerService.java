@@ -26,10 +26,12 @@ import lombok.RequiredArgsConstructor;
 import msmgw.heulgkkom.entity.ApiComponent;
 import msmgw.heulgkkom.entity.ApiPath;
 import msmgw.heulgkkom.entity.ApiVersion;
+import msmgw.heulgkkom.model.ApiVersionDto;
 import msmgw.heulgkkom.model.constant.HttpMethodEnum;
 import msmgw.heulgkkom.repository.ApiComponentRepository;
 import msmgw.heulgkkom.repository.ApiPathRepository;
 import msmgw.heulgkkom.repository.ApiVersionRepository;
+import msmgw.heulgkkom.repository.DomainVersionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,19 +43,34 @@ public class ApiManagerService {
   final private ApiComponentRepository apiComponentRepository;
   final private ApiPathRepository apiPathRepository;
 
+  @Transactional
   public SwaggerParseResult parseUri(String location) {
     return new OpenAPIV3Parser().readLocation(location, null, null);
   }
 
-  public SwaggerParseResult parseString(String data) {
-    return new OpenAPIV3Parser().readContents(data);
+  @Transactional
+  public Long parseString(String data, long serviceId) {
+    return saveApiList(new OpenAPIV3Parser().readContents(data), serviceId, data);
   }
 
   private static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 
-  @Transactional
-  public Long saveApiList(SwaggerParseResult result, long serviceId, String orgData) {
+  public List<ApiVersionDto> retrieveApiVersionDomainList(long serviceId){
+
+    //domainVersionRepository.fin
+
+    List<ApiVersion> versions = apiVersionRepository.findAllByServiceIdOrderByServiceIdDesc(serviceId);
+
+
+
+
+
+
+  }
+
+
+  private Long saveApiList(SwaggerParseResult result, long serviceId, String orgData) {
 
     OpenAPI openAPI = result.getOpenAPI();
     Long versionId = saveApiVersion(openAPI.getSpecVersion().name(), serviceId, orgData);
@@ -101,6 +118,9 @@ public class ApiManagerService {
 
 
   private void saveComponents(OpenAPI openAPI, Long versionId) {
+    if (Objects.isNull(openAPI.getComponents().getSchemas())){
+      return;
+    }
     List<ApiComponent> components = openAPI.getComponents().getSchemas().entrySet().stream()
         .map(o -> ApiComponent.builder()
             .versionId(versionId)

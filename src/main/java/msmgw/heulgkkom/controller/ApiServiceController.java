@@ -56,4 +56,9 @@ public class ApiServiceController {
     return apiServiceService.retrieveServices();
   }
 
+  @GetMapping("/my-service")
+  public List<ApiService> retrieveMyServices() {
+    return apiServiceService.retrieveServices();
+  }
+
 }
