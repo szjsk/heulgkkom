@@ -6,27 +6,23 @@ import static msmgw.heulgkkom.model.constant.HttpMethodEnum.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.SpecVersion;
-import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import msmgw.heulgkkom.entity.ApiComponent;
 import msmgw.heulgkkom.entity.ApiPath;
 import msmgw.heulgkkom.entity.ApiVersion;
-import msmgw.heulgkkom.model.ApiVersionDto;
+import msmgw.heulgkkom.entity.DomainVersion;
+import msmgw.heulgkkom.model.ApiManagerVersionDto;
+import msmgw.heulgkkom.model.ApiPathDto;
 import msmgw.heulgkkom.model.constant.HttpMethodEnum;
 import msmgw.heulgkkom.repository.ApiComponentRepository;
 import msmgw.heulgkkom.repository.ApiPathRepository;
@@ -42,6 +38,8 @@ public class ApiManagerService {
   final private ApiVersionRepository apiVersionRepository;
   final private ApiComponentRepository apiComponentRepository;
   final private ApiPathRepository apiPathRepository;
+  final private DomainVersionRepository domainVersionRepository;
+
 
   @Transactional
   public SwaggerParseResult parseUri(String location) {
@@ -56,17 +54,9 @@ public class ApiManagerService {
   private static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 
-  public List<ApiVersionDto> retrieveApiVersionDomainList(long serviceId){
+  public List<ApiManagerVersionDto> retrieveApiVersionDomainList(long serviceId){
 
-    //domainVersionRepository.fin
-
-    List<ApiVersion> versions = apiVersionRepository.findAllByServiceIdOrderByServiceIdDesc(serviceId);
-
-
-
-
-
-
+    return apiVersionRepository.findCustomByServiceId(serviceId);
   }
 
 
@@ -151,6 +141,28 @@ public class ApiManagerService {
 
     ApiVersion save = apiVersionRepository.save(apiVersion);
     return save.getVersionId();
+  }
+
+
+  public void domainVersionRepository(Long domainId, Long versionId) {
+
+    DomainVersion dto = DomainVersion.builder()
+        .domainId(domainId)
+        .versionId(versionId)
+        .requested("todo")
+        .build();
+
+    domainVersionRepository.save(dto);
+
+  }
+
+  public List<ApiPath> retrieveApiPathList(Long versionId){
+    return apiPathRepository.findAllByVersionIdOrderByPathAscMethodAsc(versionId);
+  }
+
+
+  public List<ApiPathDto> retrieveApiPathByDefault(Long domainId){
+    return apiVersionRepository.findCustomByDomainId(domainId);
   }
 
 }

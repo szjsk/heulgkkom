@@ -55,7 +55,6 @@
 
     <!-- Table Start -->
     <div class="container-fluid pt-4 px-4">
-
       <div class="row g-4">
           <div class="bg-light rounded h-100 p-4">
             <div class="mb-3">
@@ -72,31 +71,55 @@
               <select id="domainSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm">
                 <option value="">selected</option>
               </select>
-              <button id="addGroup" class="btn btn-primary" onclick="addGroup()">add</button>
               <button id="compareVersion" class="btn btn-primary" onclick="compareVersion()">compare</button>
-            </div>
-            <div class="mb-3">
-              <div id="api-version-table" class="table table-hover"></div>
             </div>
           </div>
         </div>
-      </div>
+    </div>
+      <div class="container-fluid pt-4 px-4">
       <div class="row g-4">
-        <div class="bg-light rounded h-100 p-4">
-          <div id="api-table" class="table table-hover"></div>
+        <div class="col-sm-12 col-xl-6">
+          <div class="bg-light rounded h-100 p-4">
+            <h6 class="mb-4">Version</h6>
+            <div id="api-version-table" class="table table-hover"></div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+          <div class="bg-light rounded h-100 p-4">
+            <h6 class="mb-4">Paths</h6>
+            <div id="api-table" class="table table-hover"></div>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="container-fluid pt-4 px-4">
+      <div class="row g-4">
+        <div class="bg-light rounded h-100 p-4">
+          <h6 class="mb-4">허용 서비스 리스트</h6>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid pt-4 px-4">
+      <div class="row g-4">
+          <div class="bg-light rounded h-100 p-4">
+            <h6 class="mb-4">Throttling & late limit 설정 화면(TODO)</h6>
+          </div>
+      </div>
+    </div>
+    <div class="container-fluid pt-4 px-4">
+      <div class="row g-4">
+        <div class="bg-light rounded h-100 p-4">
+          <h6 class="mb-4">API 부하 그래프(1분당)(TODO)</h6>
+        </div>
+      </div>
+    </div>
     <!-- Table End -->
-
-
 
     <!-- Footer Start -->
     <div id="common-footer-id" class="container-fluid pt-4 px-4"></div>
     <!-- Footer End -->
   </div>
   <!-- Content End -->
-
-
   <!-- Back to Top -->
   <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
 </div>
@@ -144,7 +167,7 @@
 
     $.ajax({
       type: "POST",
-      url: "/api/" + serviceId,
+      url: "/my-api/" + serviceId,
       processData: false,
       contentType: false,
       data: formData,
@@ -160,7 +183,7 @@
   function getApiVersion(serviceId) {
     $.ajax({
       type: "get",
-      url: "/api/" + serviceId,
+      url: "/my-api/" + serviceId,
       success: function (response) {
         _apiVersionTable.setData(response);
 
@@ -196,10 +219,15 @@
       type: "get",
       url: "/domain/" + serviceId,
       success: function (response) {
+        $("#domainSelectBox")
+          .find('option')
+          .remove()
+          .end()
+          .append("<option value=\"\">selected</option>");
+
         $.each(response, function (key, value) {
           $("#domainSelectBox").append('<option value=' + value.domainId + '>' + value.group + '</option>');
         });
-
       },
       error: function (xhr) {
         alert(xhr.status + ":" + xhr.statusText)
@@ -220,14 +248,29 @@
       height: "450px",
       layout: "fitDataStretch",
       columns: [
-        {title: "id", field: "serviceId"},
-        {title: "name", field: "serviceName"},
-        {title: "desc", field: "serviceDesc"},
+        {title: "pathId", field: "pathId"},
+        {title: "method", field: "method"},
+        {title: "path", field: "path"},
       ],
     });
 
-    _apiTable.on("rowClick", function (e, row) {
-      //$("#inputServiceId").val(row._row.data.serviceId)
+    _apiTable.on("rowDblClick", function (e, row) {
+      alert(row._row.data.data)
+    });
+  }
+
+
+  function getApiPath(versionId) {
+    $.ajax({
+      type: "get",
+      url: "/my-api/path/" + versionId,
+      success: function (response) {
+        _apiTable.setData(response);
+
+      },
+      error: function (xhr) {
+        alert(xhr.status + ":" + xhr.statusText)
+      }
     });
   }
 
@@ -242,6 +285,10 @@
       ],
     });
 
+    _apiVersionTable.on("rowClick", function (e, row) {
+      getApiPath(row._row.data.versionId);
+    });
+
     _apiVersionTable.on("rowDblClick", function (e, row) {
       alert(row._row.data.orginalData)
     });
@@ -249,24 +296,28 @@
 
   function apiVersionTableCell(e, cell){
     const domainId = $("#domainSelectBox").val();
+    const versionId = cell.getRow().getData().versionId;
+    const serviceId = $("#serviceSelectBox").val();
 
     if(domainId === "" || domainId === null){
       alert("choose domain Id");
       return;
     }
 
-    if(!confirm("do you set "+cell.getRow().getData().versionName+" version to "+$("#domainSelectBox option:checked").text()+" group?")) {
+    if(versionId === "" || versionId === null){
+      alert("choose domain Id");
+      return;
+    }
+
+    if(!confirm("do you set "+cell.getRow().getData().versionName+"("+versionId+")"+" version to "+$("#domainSelectBox option:checked").text()+" group?")) {
       return;
     }
 
     $.ajax({
-      type: "get",
-      url: "/domain/" + serviceId,
+      type: "post",
+      url: "/my-api/" + domainId + "/" + versionId,
       success: function (response) {
-        $.each(response, function (key, value) {
-          $("#domainSelectBox").append('<option value=' + value.domainId + '>' + value.group + '</option>');
-        });
-
+        getApiVersion(serviceId)
       },
       error: function (xhr) {
         alert(xhr.status + ":" + xhr.statusText)

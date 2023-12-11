@@ -27,7 +27,7 @@ public class DomainVersionService {
     }
 
     public DomainVersion getApi(long domainId){
-        return domainVersionRepository.findById(domainId)
+        return domainVersionRepository.findByDomainId(domainId)
             .orElseThrow(() -> new IllegalArgumentException("can not found id"));
     }
 }
