@@ -8,5 +8,6 @@ import msmgw.heulgkkom.model.ApiManagerVersionDto;
 public interface AllowApiCustomRepository {
 
   List<AllowApiListDto> findCustomByPathId(Long pathId);
+  List<AllowApiListDto> findCustomByDomainId(Long domainId);
 
 }

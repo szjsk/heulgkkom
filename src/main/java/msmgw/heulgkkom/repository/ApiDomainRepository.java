@@ -12,4 +12,6 @@ public interface ApiDomainRepository extends JpaRepository<ApiDomain, Long> {
 
   List<ApiDomain> findAllByServiceIdOrderByGroupDesc(Long serviceId);
 
+  List<ApiDomain> findAllByGroup(String group);
+
 }

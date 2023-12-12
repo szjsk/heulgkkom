@@ -1,6 +1,7 @@
 package msmgw.heulgkkom.service;
 
 
+import static msmgw.heulgkkom.model.constant.AllowStatusEnum.REQUEST;
 import static msmgw.heulgkkom.model.constant.HttpMethodEnum.DELETE;
 import static msmgw.heulgkkom.model.constant.HttpMethodEnum.GET;
 import static msmgw.heulgkkom.model.constant.HttpMethodEnum.HEAD;
@@ -24,13 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import msmgw.heulgkkom.entity.AllowApi;
 import msmgw.heulgkkom.entity.ApiComponent;
 import msmgw.heulgkkom.entity.ApiPath;
 import msmgw.heulgkkom.entity.ApiVersion;
 import msmgw.heulgkkom.entity.DomainVersion;
 import msmgw.heulgkkom.model.AllowApiListDto;
+import msmgw.heulgkkom.model.AllowRequestDto;
 import msmgw.heulgkkom.model.ApiManagerVersionDto;
 import msmgw.heulgkkom.model.ApiPathDto;
+import msmgw.heulgkkom.model.constant.AllowStatusEnum;
 import msmgw.heulgkkom.model.constant.HttpMethodEnum;
 import msmgw.heulgkkom.repository.AllowApiRepository;
 import msmgw.heulgkkom.repository.ApiComponentRepository;
@@ -46,8 +50,42 @@ public class ApiAllowService {
 
   final private AllowApiRepository allowApiRepository;
 
-  public List<AllowApiListDto> findAllowApiLists(Long pathId){
+  public List<AllowApiListDto> findAllowApiLists(Long pathId) {
     return allowApiRepository.findCustomByPathId(pathId);
   }
 
+  public List<AllowApiListDto> findAllowApiListByDomain(Long domainId) {
+    return allowApiRepository.findCustomByDomainId(domainId);
+  }
+
+
+  public boolean requestAllowApi(AllowRequestDto param) {
+    AllowApi allowApi = AllowApi.builder()
+        .allowId(param.getAllowId())
+        .pathId(param.getPathId())
+        .domainId(param.getDomainId())
+        .reqReason(param.getReqReason())
+        .requestedContact(param.getRequestedContact())
+        .status(Objects.isNull(param.getStatus()) ? REQUEST : param.getStatus())
+        .requested("todo")
+        .requestedAt(LocalDateTime.now())
+        .build();
+
+    allowApiRepository.save(allowApi);
+
+    return true;
+  }
+
+  public boolean approvalAllowApi(AllowRequestDto param) {
+    AllowApi api = allowApiRepository.findById(param.getAllowId())
+        .orElseThrow(() -> new IllegalArgumentException("can not find data"));
+
+    api.setStatus(param.getStatus());
+    api.setResReason(param.getResReason());
+    api.setResponseAt(LocalDateTime.now());
+
+    allowApiRepository.save(api);
+
+    return true;
+  }
 }

@@ -68,7 +68,8 @@
               <button id="saveService" class="btn btn-primary" onclick="upload()">add</button>
             </div>
             <div class="d-flex mb-3">
-              <select id="domainSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm">
+              <select id="domainSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm"
+                      onchange="changeDomainSelect()">
                 <option value="">selected</option>
               </select>
               <button id="compareVersion" class="btn btn-primary" onclick="compareVersion()">compare</button>
@@ -87,15 +88,62 @@
         <div class="col-sm-12 col-xl-6">
           <div class="bg-light rounded h-100 p-4">
             <h6 class="mb-4">Paths</h6>
-            <div id="api-table" class="table table-hover"></div>
+            <div id="api-path-table" class="table table-hover"></div>
           </div>
         </div>
       </div>
     </div>
     <div class="container-fluid pt-4 px-4">
       <div class="row g-4">
-        <div class="bg-light rounded h-100 p-4">
-          <h6 class="mb-4">허용 서비스 리스트</h6>
+        <div class="col-sm-12 col-xl-6">
+          <div class="bg-light rounded h-100 p-4">
+            <h6 class="mb-4">Allow List</h6>
+            <div id="api-allow-table" class="table table-hover"></div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-xl-6">
+          <div class="bg-light rounded h-100 p-4">
+            <h6 class="mb-4">Request</h6>
+            <div class="mb-3">
+              <label for="inputPath" class="form-label">Path</label>
+              <input type="text" class="form-control" id="inputPath" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputAllowId" class="form-label">Allow Id</label>
+              <input type="text" class="form-control" id="inputAllowId" readonly>
+            </div>
+            <div class="mb-3 form-floating">
+                <textarea class="form-control" placeholder="Leave a comment here"
+                          id="inputReqReason" style="height: 150px;" readonly></textarea>
+              <label for="inputReqReason">reason</label>
+            </div>
+            <div class="mb-3">
+              <label for="inputRequestedContact" class="form-label">RequestedContact</label>
+              <input type="text" class="form-control" id="inputRequestedContact" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputAllowStatus" class="form-label">Allow Status</label>
+              <input type="text" class="form-control" id="inputAllowStatus" readonly>
+            </div>
+            <div class="mb-3 form-floating">
+              <label for="inputResReason" class="form-label">response</label>
+              <textarea class="form-control" id="inputResReason" style="height: 150px;"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="inputResponseAt" class="form-label">Response At</label>
+              <input type="text" class="form-control" id="inputResponseAt" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputRequestAt" class="form-label">Request At</label>
+              <input type="text" class="form-control" id="inputRequestAt" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputRequested" class="form-label">Requested</label>
+              <input type="text" class="form-control" id="inputRequested" readonly>
+            </div>
+            <button  class="btn btn-primary" onclick="approvalApi('APPROVAL')">Approval</button>
+            <button  class="btn btn-primary" onclick="approvalApi('REJECT')">Reject</button>
+          </div>
         </div>
       </div>
     </div>
@@ -144,13 +192,15 @@
 </script>
 </body>
 <script>
-  let _apiTable;
+  let _apiPathTable;
   let _apiVersionTable;
+  let _apiAllowTable;
 
   $(document).ready(function () {
     initSelect();
-    initApiTable();
+    initApiPathTable();
     initApiVersionTable();
+    initApiAllowTable();
   });
 
   function upload() {
@@ -235,7 +285,23 @@
     });
   }
 
-  function addGroup(){
+  function changeDomainSelect(){
+    const domainId = $("#domainSelectBox").val();
+
+    if(domainId === ''){
+      return;
+    }
+
+    $.ajax({
+      type: "get",
+      url: "/api-request/allow-by-domain/" + domainId,
+      success: function (response) {
+        _apiAllowTable.setData(response);
+      },
+      error: function (xhr) {
+        alert(xhr.status + ":" + xhr.statusText)
+      }
+    });
 
   }
 
@@ -243,8 +309,8 @@
     alert("todo");
   }
 
-  function initApiTable() {
-    _apiTable = new Tabulator("#api-table", {
+  function initApiPathTable() {
+    _apiPathTable = new Tabulator("#api-path-table", {
       height: "450px",
       layout: "fitDataStretch",
       columns: [
@@ -254,9 +320,14 @@
       ],
     });
 
-    _apiTable.on("rowDblClick", function (e, row) {
+    _apiPathTable.on("rowDblClick", function (e, row) {
       alert(row._row.data.data)
     });
+
+    _apiPathTable.on("rowClick", function (e, row) {
+      getAllowApis(row._row.data.pathId)
+    });
+
   }
 
 
@@ -265,8 +336,22 @@
       type: "get",
       url: "/my-api/path/" + versionId,
       success: function (response) {
-        _apiTable.setData(response);
+        _apiPathTable.setData(response);
 
+      },
+      error: function (xhr) {
+        alert(xhr.status + ":" + xhr.statusText)
+      }
+    });
+  }
+
+  function getAllowApis(pathId) {
+
+    $.ajax({
+      type: "get",
+      url: "/api-request/allow/" + pathId,
+      success: function (response) {
+        _apiAllowTable.setData(response);
       },
       error: function (xhr) {
         alert(xhr.status + ":" + xhr.statusText)
@@ -279,9 +364,10 @@
       height: "450px",
       layout: "fitDataStretch",
       columns: [
-        {title: "version-name", field: "versionName"},
-        {title: "openapi-spec", field: "openapiVersion"},
-        {title: "add group",  formatter:"buttonTick", width:40, hozAlign:"center", cellClick:function(e, cell){apiVersionTableCell(e, cell);}},
+        {title: "name", field: "versionName"},
+        {title: "spec", field: "openapiVersion"},
+        {title: "group", field: "group"},
+        {title: "add",  formatter:"buttonTick", width:40, hozAlign:"center", cellClick:function(e, cell){apiVersionTableCell(e, cell);}},
       ],
     });
 
@@ -292,6 +378,72 @@
     _apiVersionTable.on("rowDblClick", function (e, row) {
       alert(row._row.data.orginalData)
     });
+  }
+
+
+
+  function initApiAllowTable() {
+    _apiAllowTable = new Tabulator("#api-allow-table", {
+      height: "450px",
+      layout: "fitDataStretch",
+      columns: [
+        {title: "service", field: "serviceName"},
+        {title: "group", field: "group"},
+        {title: "status", field: "status"},
+        {title: "requestedAt", field: "requestedAt"},
+        {title: "responseAt", field: "responseAt"}
+      ],
+    });
+
+    _apiAllowTable.on("rowClick", function (e, row) {
+      $("#inputAllowId").val(row._row.data.allowId);
+      $("#inputPath").val("["+row._row.data.group+"]"+row._row.data.url);
+      $("#inputReqReason").val(row._row.data.reqReason);
+      $("#inputResReason").val(row._row.data.resReason);
+      $("#inputResponseAt").val(row._row.data.responseAt);
+      $("#inputRequested").val(row._row.data.requested);
+      $("#inputRequestAt").val(row._row.data.requestedAt);
+      $("#inputRequestedContact").val(row._row.data.requestedContact);
+      $("#inputAllowStatus").val(row._row.data.status);
+    });
+  }
+
+  function approvalApi(type){
+    const allowId = $("#inputAllowId").val();
+    const status = $("#inputAllowStatus").val();
+    const resReason = $("#inputResReason").val();
+
+    if(allowId === "" || allowId === null){
+      alert("choose allowId");
+      return;
+    }
+
+    if(status !== "REQUEST"){
+      alert("can change only request status.");
+      return;
+    }
+
+    if(!confirm("do you  "+type +"?")) {
+      return;
+    }
+
+    $.ajax({
+      type: "post",
+      url: "/my-api/approval",
+      contentType : "application/json",
+      data: JSON.stringify ({
+        allowId: allowId,
+        resReason: resReason,
+        status: type
+      }),
+      success: function (response) {
+        alert("새로고침하세요. 짜기 귀찮음..");
+      },
+      error: function (xhr) {
+        alert(xhr.status + ":" + xhr.statusText)
+      }
+    });
+
   }
 
   function apiVersionTableCell(e, cell){
@@ -325,5 +477,7 @@
     });
 
   }
+
+
 </script>
 </html>

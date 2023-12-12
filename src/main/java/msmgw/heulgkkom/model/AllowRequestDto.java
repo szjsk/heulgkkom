@@ -1,6 +1,5 @@
 package msmgw.heulgkkom.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,8 +12,7 @@ import msmgw.heulgkkom.model.constant.AllowStatusEnum;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AllowApiListDto {
+public class AllowRequestDto {
 
   private Long allowId;
   private Long pathId;
@@ -26,7 +24,4 @@ public class AllowApiListDto {
   private String requestedContact;
   private LocalDateTime requestedAt;
   private LocalDateTime responseAt;
-  private String serviceName;
-  private String group;
-  private String url;
 }

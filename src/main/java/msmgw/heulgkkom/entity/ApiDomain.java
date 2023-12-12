@@ -56,4 +56,6 @@ public class ApiDomain implements Serializable {
   @Column(name = "modifed_at", columnDefinition = "TIMESTAMP")
   private LocalDateTime modifiedAt;
 
+
+
 }

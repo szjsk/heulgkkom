@@ -57,29 +57,30 @@
     <div class="container-fluid pt-4 px-4">
 
       <div class="row g-4">
-          <div class="bg-light rounded h-100 p-4">
-            <div class="w-100 ms-3">
-              <div class="d-flex w-100 justify-content-between">
-                <select id="serviceSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm"
-                        onchange="changeServiceSelect()">
-                  <option value="">selected</option>
-                </select>
-                <select id="domainSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm">
-                  <option value="">selected</option>
-                </select>
-                <button id="compareVersion" class="btn btn-primary" onclick="searchApiPaths()">search</button>
-              </div>
+        <div class="bg-light rounded h-100 p-4">
+          <div class="w-100 ms-3">
+            <div class="d-flex w-100 justify-content-between">
+              <select id="serviceSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm"
+                      onchange="changeServiceSelect()">
+                <option value="">selected</option>
+              </select>
+              <select id="domainSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm"
+                      onchange="searchApiPaths()">
+                <option value="">selected</option>
+              </select>
             </div>
           </div>
         </div>
-
-      <div class="row g-4">
-          <div class="bg-light rounded h-100 p-4">
-            <h6 class="mb-4">Api List</h6>
-            <div id="api-path-table" class="table table-hover"></div>
-          </div>
       </div>
 
+      <div class="row g-4">
+        <div class="bg-light rounded h-100 p-4">
+          <h6 class="mb-4">Api List</h6>
+          <div id="api-path-table" class="table table-hover"></div>
+        </div>
+      </div>
+
+      <div class="container-fluid pt-4 px-4">
       <div class="row g-4">
         <div class="col-sm-12 col-xl-6">
           <div class="bg-light rounded h-100 p-4">
@@ -89,40 +90,54 @@
         </div>
         <div class="col-sm-12 col-xl-6">
           <div class="bg-light rounded h-100 p-4">
-            <h6 class="mb-4">Data</h6>
-              <div class="mb-3">
-                <label for="inputPathId" class="form-label">Path Id</label>
-                <input type="text" class="form-control" id="inputPathId" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="inputDomainId" class="form-label">Domain Id</label>
-                <input type="text" class="form-control" id="inputDomainId" readonly>
-              </div>
+            <h6 class="mb-4">Request</h6>
 
-              <div class="mb-3">
-                <label for="inputUrl" class="form-label">Url</label>
-                <input type="text" class="form-control" id="inputUrl"
-                       aria-describedby="urlHelp">
-                <div id="urlHelp" class="form-text">http~부터 시작하는 domain 마지막 / 제외.</div>
-              </div>
-              <div class="mb-3">
-                <label for="inputToken" class="form-label">Token</label>
-                <input type="text" class="form-control" id="inputToken"
-                       aria-describedby="tokenHelp">
-                <div id="tokenHelp" class="form-text">Client Credential Token</div>
-              </div>
-              <div class="mb-3">
-                <select id="domainGroup" class="form-select form-select-sm mb-3" aria-label=".form-select-sm">
-                  <option value="dev" selected>dev</option>
-                  <option value="prd">prd</option>
-                </select>
-              </div>
+            <select id="reqServiceSelectBox" class="form-select form-select-sm mb-3" aria-label=".form-select-sm">
+            </select>
 
-              <button id="saveDomain" class="btn btn-primary" onclick="upsertDomain()">Save</button>
+            <div class="mb-3">
+              <label for="inputPathId" class="form-label">Path Id</label>
+              <input type="text" class="form-control" id="inputPathId" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputAllowId" class="form-label">Allow Id</label>
+              <input type="text" class="form-control" id="inputAllowId" readonly>
+            </div>
+            <div class="mb-3 form-floating">
+                <textarea class="form-control" placeholder="Leave a comment here"
+                          id="inputReqReason" style="height: 150px;"></textarea>
+              <label for="inputReqReason">reason</label>
+            </div>
+            <div class="mb-3">
+              <label for="inputRequestedContact" class="form-label">RequestedContact</label>
+              <input type="text" class="form-control" id="inputRequestedContact">
+            </div>
+            <div class="mb-3">
+              <label for="inputAllowStatus" class="form-label">Allow Status</label>
+              <input type="text" class="form-control" id="inputAllowStatus" readonly>
+            </div>
+            <div class="mb-3 form-floating">
+                <label for="inputResReason" class="form-label">response</label>
+                <textarea class="form-control" id="inputResReason" style="height: 150px;" readonly></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="inputResponseAt" class="form-label">Response At</label>
+              <input type="text" class="form-control" id="inputResponseAt" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputRequestAt" class="form-label">Request At</label>
+              <input type="text" class="form-control" id="inputRequestAt" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="inputRequested" class="form-label">Requested</label>
+              <input type="text" class="form-control" id="inputRequested" readonly>
+            </div>
+            <button  class="btn btn-primary" onclick="requestApi()">Request</button>
+            <button  class="btn btn-primary" onclick="cancelApi()">Cancel</button>
           </div>
         </div>
       </div>
-
+      </div>
 
     </div>
     <!-- Table End -->
@@ -184,7 +199,7 @@
 
   }
 
-  function changeServiceSelect(){
+  function changeServiceSelect() {
     const serviceId = $("#serviceSelectBox").val()
 
     $.ajax({
@@ -207,7 +222,6 @@
     });
   }
 
-
   function searchApiPaths() {
     const domainId = $("#domainSelectBox").val()
 
@@ -228,7 +242,6 @@
     });
   }
 
-
   function getAllowApis(pathId) {
 
     $.ajax({
@@ -242,6 +255,7 @@
       }
     });
   }
+
   function initApiTable() {
     _apiPathTable = new Tabulator("#api-path-table", {
       height: "450px",
@@ -256,7 +270,30 @@
     });
 
     _apiPathTable.on("rowClick", function (e, row) {
+      $("#inputPathId").val(row._row.data.pathId);
+      getOtherDomainList(row._row.data.domainId);
       getAllowApis(row._row.data.pathId);
+    });
+  }
+
+  function getOtherDomainList(domainId) {
+    $.ajax({
+      type: "get",
+      url: "/api-request/other-domain/" + domainId,
+      success: function (response) {
+        $("#reqServiceSelectBox")
+        .find('option')
+        .remove()
+        .end();
+
+        $.each(response, function (key, value) {
+          $("#reqServiceSelectBox").append('<option value=' + value.domainId + '>' + value.serviceName + '</option>');
+        });
+
+      },
+      error: function (xhr) {
+        alert(xhr.status + ":" + xhr.statusText)
+      }
     });
   }
 
@@ -274,9 +311,81 @@
     });
 
     _apiAllowTable.on("rowClick", function (e, row) {
-      alert('a');
+      $("#inputAllowId").val(row._row.data.allowId);
+      $("#inputReqReason").val(row._row.data.reqReason);
+      $("#inputResReason").val(row._row.data.resReason);
+      $("#inputResponseAt").val(row._row.data.responseAt);
+      $("#inputRequested").val(row._row.data.requested);
+      $("#inputRequestAt").val(row._row.data.requestedAt);
+      $("#inputRequestedContact").val(row._row.data.requestedContact);
+      $("#inputAllowStatus").val(row._row.data.status);
     });
   }
 
+  function requestApi(){
+    const domainId = $("#reqServiceSelectBox").val();
+    const pathId = $("#inputPathId").val();
+    const allowId = $("#inputAllowId").val();
+    const reqReason = $("#inputReqReason").val();
+    const reqContact = $("#inputRequestedContact").val();
+    let allowStatus = $("#inputAllowStatus").val();
+
+    if(allowStatus === ''){
+      allowStatus = "REQUEST";
+    }
+
+    if(allowStatus === "APPROVAL" || allowStatus === "REQUEST"){
+      alert("please wait when approval or reject");
+      return;
+    }
+
+    if(domainId === "" || domainId === null){
+      alert("choose domain Id");
+      return;
+    }
+
+    if(pathId === "" || pathId === null){
+      alert("choose path Id");
+      return;
+    }
+
+    if(!confirm("do you request allow api? ")) {
+      return;
+    }
+
+    $.ajax({
+      type: "post",
+      url: "/api-request/allow-request",
+      contentType : "application/json",
+      data: JSON.stringify ({
+        allowId: allowId,
+        domainId: domainId,
+        pathId: pathId,
+        reqReason: reqReason,
+        requestedContact: reqContact,
+        status: allowStatus
+      }),
+      success: function (response) {
+        //clearRequest();
+        getAllowApis(pathId);
+      },
+      error: function (xhr) {
+        alert(xhr.status + ":" + xhr.statusText)
+      }
+    });
+
+  }
+
+  function clearRequest(){
+    $("#inputAllowId").val("");
+    $("#inputReqReason").val("");
+    $("#inputResReason").val("");
+    $("#inputResponseAt").val("");
+    $("#inputRequested").val("");
+    $("#inputRequestAt").val("");
+    $("#inputRequestedContact").val("");
+    $("#inputAllowStatus").val("");
+
+  }
 </script>
 </html>
