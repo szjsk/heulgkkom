@@ -29,9 +29,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @ToString
 public class ApiPath implements Serializable {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "path_id")
-  private Long pathId;
+  @Column(name = "path_key")
+  private String pathKey;
 
   @Column(name = "version_id")
   private Long versionId;

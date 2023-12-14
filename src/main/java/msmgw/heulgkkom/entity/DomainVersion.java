@@ -28,6 +28,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @IdClass(DomainVersionId.class)
 public class DomainVersion implements Serializable {
 
+  //todo service id추가
   @Id
   @Column(name = "domain_id")
   private Long domainId;

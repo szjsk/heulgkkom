@@ -47,7 +47,7 @@ public class ApiServiceController {
 
 
   @GetMapping("/{serviceId}")
-  public ApiService getService(@PathVariable long serviceId) {
+  public ApiService getService(@PathVariable Long serviceId) {
     return apiServiceService.getService(serviceId);
   }
 

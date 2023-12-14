@@ -32,16 +32,16 @@ public class AllowApiCustomRepositoryImpl implements AllowApiCustomRepository {
   private final QDomainVersion qDomainVersion = QDomainVersion.domainVersion;
 
   @Override
-  public List<AllowApiListDto> findCustomByPathId(Long pathId) {
+  public List<AllowApiListDto> findCustomByPathKey(String pathKey) {
 
     List<BooleanExpression> wheres = new ArrayList<>();
-    wheres.add(qAllowApi.pathId.eq(pathId));
+    wheres.add(qAllowApi.pathKey.eq(pathKey));
 
 
     return factory.select(
             Projections.bean(AllowApiListDto.class,
                 qAllowApi.allowId,
-                qAllowApi.pathId,
+                qAllowApi.pathKey,
                 qAllowApi.domainId,
                 qAllowApi.status,
                 qAllowApi.reqReason,
@@ -70,7 +70,7 @@ public class AllowApiCustomRepositoryImpl implements AllowApiCustomRepository {
     return factory.select(
             Projections.bean(AllowApiListDto.class,
                 qAllowApi.allowId,
-                qAllowApi.pathId,
+                qAllowApi.pathKey,
                 qAllowApi.domainId,
                 qAllowApi.status,
                 qAllowApi.reqReason,
@@ -84,7 +84,7 @@ public class AllowApiCustomRepositoryImpl implements AllowApiCustomRepository {
                 qApiDomain.url
             ))
         .from(qAllowApi)
-        .leftJoin(qApiPath).on(qAllowApi.pathId.eq(qApiPath.pathId))
+        .leftJoin(qApiPath).on(qAllowApi.pathKey.eq(qApiPath.pathKey))
         .leftJoin(qDomainVersion).on(qDomainVersion.versionId.eq(qApiPath.versionId))
         .leftJoin(qApiDomain).on(qApiDomain.domainId.eq(qAllowApi.domainId))
         .leftJoin(qApiService).on(qApiService.serviceId.eq(qApiDomain.serviceId))

@@ -41,7 +41,7 @@ public class ApiServiceService {
         return apiServiceRepository.save(data);
     }
 
-    public ApiService getService(long serviceId){
+    public ApiService getService(Long serviceId){
         return apiServiceRepository.findById(serviceId)
             .orElseThrow(() -> new IllegalArgumentException("can not found id"));
     }

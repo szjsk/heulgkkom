@@ -47,7 +47,7 @@ public class ApiDomainController {
   }
 
   @GetMapping("/{serviceId}")
-  public List<ApiDomain> getService(@PathVariable long serviceId) {
+  public List<ApiDomain> getService(@PathVariable Long serviceId) {
     return apiDomainService.retrieveDomain(serviceId);
   }
 

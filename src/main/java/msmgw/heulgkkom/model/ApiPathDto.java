@@ -14,7 +14,7 @@ import msmgw.heulgkkom.model.constant.HttpMethodEnum;
 public class ApiPathDto {
 
   private Long versionId;
-  private Long pathId;
+  private String pathKey;
   private String path;
   private HttpMethodEnum method;
   private String data;

@@ -314,7 +314,7 @@
       height: "450px",
       layout: "fitDataStretch",
       columns: [
-        {title: "pathId", field: "pathId"},
+        {title: "pathKey", field: "pathKey"},
         {title: "method", field: "method"},
         {title: "path", field: "path"},
       ],
@@ -325,7 +325,7 @@
     });
 
     _apiPathTable.on("rowClick", function (e, row) {
-      getAllowApis(row._row.data.pathId)
+      getAllowApis(row._row.data.pathKey)
     });
 
   }
@@ -345,11 +345,11 @@
     });
   }
 
-  function getAllowApis(pathId) {
+  function getAllowApis(pathKey) {
 
     $.ajax({
       type: "get",
-      url: "/api-request/allow/" + pathId,
+      url: "/api-request/allow-path-key?pathKey=" + encodeURIComponent(pathKey),
       success: function (response) {
         _apiAllowTable.setData(response);
       },

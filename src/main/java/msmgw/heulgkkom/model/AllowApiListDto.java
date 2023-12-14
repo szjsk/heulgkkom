@@ -17,7 +17,7 @@ import msmgw.heulgkkom.model.constant.AllowStatusEnum;
 public class AllowApiListDto {
 
   private Long allowId;
-  private Long pathId;
+  private String pathKey;
   private Long domainId;
   private AllowStatusEnum status;
   private String reqReason;

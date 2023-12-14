@@ -48,9 +48,9 @@ public class ApiRequestController {
     return apiManagerService.retrieveApiPathByDefault(domainId);
   }
 
-  @GetMapping("/allow/{pathId}")
-  public List<AllowApiListDto> retrieveAllowApis(@PathVariable Long pathId){
-    return apiAllowService.findAllowApiLists(pathId);
+  @GetMapping("/allow-path-key")
+  public List<AllowApiListDto> retrieveAllowApis(@RequestParam(name = "pathKey") String pathKey){
+    return apiAllowService.findAllowApiLists(pathKey);
   }
 
   @GetMapping("/allow-by-domain/{domainId}")
@@ -68,7 +68,7 @@ public class ApiRequestController {
   public boolean requestAllowApi(@RequestBody AllowRequestDto param){
 
     ControllerUtil.assertRequest(()-> isNull(param.getDomainId())).onThrow("domain id can not be null");
-    ControllerUtil.assertRequest(()-> isNull(param.getPathId())).onThrow("path id can not be null");
+    ControllerUtil.assertRequest(()-> isNull(param.getPathKey())).onThrow("path id can not be null");
     ControllerUtil.assertRequest(()-> isNull(param.getReqReason())).onThrow("reason can not be null");
     ControllerUtil.assertRequest(()-> isNull(param.getRequestedContact())).onThrow("contact can not be null");
 

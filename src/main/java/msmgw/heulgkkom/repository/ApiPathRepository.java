@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface ApiPathRepository extends JpaRepository<ApiPath, Long> {
+public interface ApiPathRepository extends JpaRepository<ApiPath, String> {
 
   List<ApiPath> findAllByVersionIdOrderByPathAscMethodAsc(Long versionId);
 

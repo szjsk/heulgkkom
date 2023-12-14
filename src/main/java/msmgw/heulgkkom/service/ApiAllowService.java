@@ -50,8 +50,8 @@ public class ApiAllowService {
 
   final private AllowApiRepository allowApiRepository;
 
-  public List<AllowApiListDto> findAllowApiLists(Long pathId) {
-    return allowApiRepository.findCustomByPathId(pathId);
+  public List<AllowApiListDto> findAllowApiLists(String pathKey) {
+    return allowApiRepository.findCustomByPathKey(pathKey);
   }
 
   public List<AllowApiListDto> findAllowApiListByDomain(Long domainId) {
@@ -62,7 +62,7 @@ public class ApiAllowService {
   public boolean requestAllowApi(AllowRequestDto param) {
     AllowApi allowApi = AllowApi.builder()
         .allowId(param.getAllowId())
-        .pathId(param.getPathId())
+        .pathKey(param.getPathKey())
         .domainId(param.getDomainId())
         .reqReason(param.getReqReason())
         .requestedContact(param.getRequestedContact())

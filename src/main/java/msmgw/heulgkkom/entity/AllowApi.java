@@ -33,8 +33,8 @@ public class AllowApi implements Serializable {
   @Column(name = "allow_id")
   private Long allowId;
 
-  @Column(name = "path_id")
-  private Long pathId;
+  @Column(name = "path_key")
+  private String pathKey;
 
   @Column(name = "domain_id")
   private Long domainId;

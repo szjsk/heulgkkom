@@ -96,8 +96,8 @@
             </select>
 
             <div class="mb-3">
-              <label for="inputPathId" class="form-label">Path Id</label>
-              <input type="text" class="form-control" id="inputPathId" readonly>
+              <label for="inputPathKey" class="form-label">Path Id</label>
+              <input type="text" class="form-control" id="inputPathKey" readonly>
             </div>
             <div class="mb-3">
               <label for="inputAllowId" class="form-label">Allow Id</label>
@@ -242,11 +242,11 @@
     });
   }
 
-  function getAllowApis(pathId) {
+  function getAllowApis(pathKey) {
 
     $.ajax({
       type: "get",
-      url: "/api-request/allow/" + pathId,
+      url: "/api-request/allow-path-key?pathKey=" + encodeURIComponent(pathKey),
       success: function (response) {
         _apiAllowTable.setData(response);
       },
@@ -262,7 +262,7 @@
       layout: "fitDataStretch",
       columns: [
         {title: "versionId", field: "versionId"},
-        {title: "pathId", field: "pathId"},
+        {title: "pathKey", field: "pathKey"},
         {title: "method", field: "method"},
         {title: "path", field: "path"},
         {title: "domainId", field: "domainId"}
@@ -270,9 +270,12 @@
     });
 
     _apiPathTable.on("rowClick", function (e, row) {
-      $("#inputPathId").val(row._row.data.pathId);
+      $("#inputPathKey").val(row._row.data.pathKey);
       getOtherDomainList(row._row.data.domainId);
-      getAllowApis(row._row.data.pathId);
+      getAllowApis(row._row.data.pathKey);
+    });
+    _apiPathTable.on("rowDblClick", function (e, row) {
+      alert(row._row.data.data);
     });
   }
 
@@ -324,15 +327,11 @@
 
   function requestApi(){
     const domainId = $("#reqServiceSelectBox").val();
-    const pathId = $("#inputPathId").val();
+    const pathKey = $("#inputPathKey").val();
     const allowId = $("#inputAllowId").val();
     const reqReason = $("#inputReqReason").val();
     const reqContact = $("#inputRequestedContact").val();
     let allowStatus = $("#inputAllowStatus").val();
-
-    if(allowStatus === ''){
-      allowStatus = "REQUEST";
-    }
 
     if(allowStatus === "APPROVAL" || allowStatus === "REQUEST"){
       alert("please wait when approval or reject");
@@ -344,7 +343,7 @@
       return;
     }
 
-    if(pathId === "" || pathId === null){
+    if(pathKey === "" || pathKey === null){
       alert("choose path Id");
       return;
     }
@@ -360,14 +359,14 @@
       data: JSON.stringify ({
         allowId: allowId,
         domainId: domainId,
-        pathId: pathId,
+        pathKey: pathKey,
         reqReason: reqReason,
         requestedContact: reqContact,
-        status: allowStatus
+        status: allowStatus === '' ? "REQUEST" : allowStatus
       }),
       success: function (response) {
         //clearRequest();
-        getAllowApis(pathId);
+        getAllowApis(pathKey);
       },
       error: function (xhr) {
         alert(xhr.status + ":" + xhr.statusText)

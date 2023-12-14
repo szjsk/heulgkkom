@@ -26,7 +26,7 @@ public class DomainVersionService {
         return domainVersionRepository.save(data);
     }
 
-    public DomainVersion getApi(long domainId){
+    public DomainVersion getApi(Long domainId){
         return domainVersionRepository.findByDomainId(domainId)
             .orElseThrow(() -> new IllegalArgumentException("can not found id"));
     }

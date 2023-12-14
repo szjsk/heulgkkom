@@ -45,18 +45,18 @@ public class MyApiManagerController {
   }
 
   @PostMapping("/domain-version")
-  public DomainVersion mappingDomainApiVersion(@RequestBody DomainVersionDto param) throws IOException {
+  public DomainVersion mappingDomainApiVersion(@RequestBody DomainVersionDto param) {
     return domainVersionService.upsertService(param);
   }
 
   @GetMapping("/{serviceId}")
-  public List<ApiManagerVersionDto> getApiVersionDomainList(@PathVariable Long serviceId) throws IOException {
+  public List<ApiManagerVersionDto> getApiVersionDomainList(@PathVariable Long serviceId) {
 
     return apiManagerService.retrieveApiVersionDomainList(serviceId);
   }
 
   @PostMapping("/{domainId}/{versionId}")
-  public boolean mappingVersion(@PathVariable Long domainId, @PathVariable Long versionId) throws IOException {
+  public boolean mappingVersion(@PathVariable Long domainId, @PathVariable Long versionId) {
 
     apiManagerService.domainVersionRepository(domainId, versionId);
 

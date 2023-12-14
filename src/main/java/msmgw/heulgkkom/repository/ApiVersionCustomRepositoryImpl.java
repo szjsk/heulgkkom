@@ -60,7 +60,7 @@ public class ApiVersionCustomRepositoryImpl implements ApiVersionCustomRepositor
     return factory.select(
             Projections.bean(ApiPathDto.class,
                 qApiPath.versionId,
-                qApiPath.pathId,
+                qApiPath.pathKey,
                 qApiPath.path,
                 qApiPath.method,
                 qApiPath.data,

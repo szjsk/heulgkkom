@@ -49,17 +49,17 @@ public class ApiDomainService {
         return apiDomainRepository.save(data);
     }
 
-    public List<ApiDomain> retrieveDomain(long serviceId){
+    public List<ApiDomain> retrieveDomain(Long serviceId){
         return apiDomainRepository.findAllByServiceIdOrderByGroupDesc(serviceId);
     }
 
-    public List<DomainGroupDto> retrieveSameDomainGroup(long domainId){
+    public List<DomainGroupDto> retrieveSameDomainGroup(Long domainId){
         ApiDomain domain = apiDomainRepository.findById(domainId)
             .orElseThrow(() -> new IllegalArgumentException("can not find domain"));
 
         Map<Long, ApiDomain> domainByService = apiDomainRepository.findAllByGroup(domain.getGroup()).stream()
             .filter(o-> !Objects.equals(o.getServiceId(), domain.getServiceId()))
-            .collect(Collectors.toMap(ApiDomain::getServiceId, Function.identity()));
+            .collect(Collectors.toMap(ApiDomain::getServiceId, Function.identity(), (a,b)->a));
 
         return apiServiceRepository.findAllById(domainByService.keySet())
             .stream()
