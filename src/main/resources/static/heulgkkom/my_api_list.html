@@ -314,9 +314,11 @@
       height: "450px",
       layout: "fitDataStretch",
       columns: [
-        {title: "pathKey", field: "pathKey"},
         {title: "method", field: "method"},
         {title: "path", field: "path"},
+        {title: "req",  formatter:"buttonTick", width:40, hozAlign:"center", cellClick:function(e, cell){alert(cell.getRow().getData().parameter+"\n\n REQUEST BODY :"+cell.getRow().getData().requestBody);}},
+        {title: "res",  formatter:"buttonTick", width:40, hozAlign:"center", cellClick:function(e, cell){alert(cell.getRow().getData().response);}}
+
       ],
     });
 

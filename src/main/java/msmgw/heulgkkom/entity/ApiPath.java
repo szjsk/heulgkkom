@@ -45,4 +45,13 @@ public class ApiPath implements Serializable {
   @Column(name = "data")
   private String data;
 
+  @Column(name = "parameter")
+  private String parameter;
+
+  @Column(name = "request_body")
+  private String requestBody;
+
+  @Column(name = "response")
+  private String response;
+
 }
