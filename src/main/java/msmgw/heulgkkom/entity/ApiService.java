@@ -39,6 +39,9 @@ public class ApiService implements Serializable {
   @Column(name = "service_desc")
   private String serviceDesc;
 
+  @Column(name = "service_gradle")
+  private String serviceGradle;
+
   @Column(name = "status")
   @Enumerated(EnumType.STRING)
   private ServiceStatusEnum status;

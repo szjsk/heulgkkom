@@ -36,8 +36,8 @@ public class AllowApi implements Serializable {
   @Column(name = "path_key")
   private String pathKey;
 
-  @Column(name = "domain_id")
-  private Long domainId;
+  @Column(name = "req_domain_id")
+  private Long reqDomainId;
 
   @Column(name = "status")
   @Enumerated(EnumType.STRING)

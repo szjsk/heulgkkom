@@ -13,6 +13,7 @@ import msmgw.heulgkkom.entity.ApiDomain;
 import msmgw.heulgkkom.entity.ApiService;
 import msmgw.heulgkkom.model.DomainGroupDto;
 import msmgw.heulgkkom.model.DomainManagerDto;
+import msmgw.heulgkkom.model.constant.ServiceStatusEnum;
 import msmgw.heulgkkom.repository.ApiDomainRepository;
 import msmgw.heulgkkom.repository.ApiServiceRepository;
 import org.springframework.stereotype.Service;
@@ -21,54 +22,53 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ApiDomainService {
 
-    private final ApiDomainRepository apiDomainRepository;
-    private final ApiServiceRepository apiServiceRepository;
+  private final ApiDomainRepository apiDomainRepository;
+  private final ApiServiceRepository apiServiceRepository;
 
-    public ApiDomain insertDomain(DomainManagerDto param, String user){
+  public ApiDomain insertDomain(DomainManagerDto param, String user) {
 
-        ApiDomain data = ApiDomain.builder()
-            .serviceId(param.getServiceId())
-            .group(param.getGroup())
-            .url(param.getUrl())
-            .token(param.getToken())
-            .created(user)
-            .build();
+    ApiDomain data = ApiDomain.builder()
+        .serviceId(param.getServiceId())
+        .group(param.getGroup())
+        .url(param.getUrl())
+        .token(param.getToken())
+        .created(user)
+        .build();
 
-        return apiDomainRepository.save(data);
-    }
+    return apiDomainRepository.save(data);
+  }
 
-    public ApiDomain updateDomain(DomainManagerDto param, String user){
+  public ApiDomain updateDomain(DomainManagerDto param, String user) {
 
-        ApiDomain data = apiDomainRepository.findById(param.getDomainId())
-            .orElseThrow(() -> new IllegalArgumentException("can not found id"));
+    ApiDomain data = apiDomainRepository.findById(param.getDomainId())
+        .orElseThrow(() -> new IllegalArgumentException("can not found id"));
 
-        data.setUrl(param.getUrl());
-        data.setToken(param.getToken());
-        data.setModifier(user);
+    data.setUrl(param.getUrl());
+    data.setToken(param.getToken());
+    data.setModifier(user);
 
-        return apiDomainRepository.save(data);
-    }
+    return apiDomainRepository.save(data);
+  }
 
-    public List<ApiDomain> retrieveDomain(Long serviceId){
-        return apiDomainRepository.findAllByServiceIdOrderByGroupDesc(serviceId);
-    }
+  public List<ApiDomain> retrieveDomain(Long serviceId) {
+    return apiDomainRepository.findAllByServiceIdOrderByGroupDesc(serviceId);
+  }
 
-    public List<DomainGroupDto> retrieveSameDomainGroup(Long domainId){
-        ApiDomain domain = apiDomainRepository.findById(domainId)
-            .orElseThrow(() -> new IllegalArgumentException("can not find domain"));
+  public List<DomainGroupDto> retrieveSameDomainGroup(Long domainId) {
+    ApiDomain domain = apiDomainRepository.findById(domainId)
+        .orElseThrow(() -> new IllegalArgumentException("can not find domain"));
 
-        Map<Long, ApiDomain> domainByService = apiDomainRepository.findAllByGroup(domain.getGroup()).stream()
-            .filter(o-> !Objects.equals(o.getServiceId(), domain.getServiceId()))
-            .collect(Collectors.toMap(ApiDomain::getServiceId, Function.identity(), (a,b)->a));
+    Map<Long, ApiDomain> domainByService = apiDomainRepository.findAllByGroup(domain.getGroup()).stream()
+        .filter(o -> !Objects.equals(o.getServiceId(), domain.getServiceId()))
+        .collect(Collectors.toMap(ApiDomain::getServiceId, Function.identity(), (a, b) -> a));
 
-        return apiServiceRepository.findAllById(domainByService.keySet())
-            .stream()
-            .map(o->{
-                ApiDomain d = domainByService.get(o.getServiceId());
-                return DomainGroupDto.of(o.getServiceId(), d.getDomainId(), o.getServiceName(), d.getGroup());
-            }).toList();
-    }
-
+    return apiServiceRepository.findAllById(domainByService.keySet())
+        .stream()
+        .map(o -> {
+          ApiDomain d = domainByService.get(o.getServiceId());
+          return DomainGroupDto.of(o.getServiceId(), d.getDomainId(), o.getServiceName(), d.getGroup());
+        }).toList();
+  }
 
 
 }

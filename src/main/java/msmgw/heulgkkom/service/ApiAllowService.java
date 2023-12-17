@@ -63,7 +63,7 @@ public class ApiAllowService {
     AllowApi allowApi = AllowApi.builder()
         .allowId(param.getAllowId())
         .pathKey(param.getPathKey())
-        .domainId(param.getDomainId())
+        .reqDomainId(param.getDomainId())
         .reqReason(param.getReqReason())
         .requestedContact(param.getRequestedContact())
         .status(Objects.isNull(param.getStatus()) ? REQUEST : param.getStatus())

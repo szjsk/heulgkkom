@@ -206,7 +206,7 @@ public class ApiManagerService {
 
     Set<Entry<String, PathItem>> entries = paths.entrySet();
 
-    List<ApiDto> list = entries.stream()
+    return entries.stream()
         .flatMap(e -> {
           String k = e.getKey();
           PathItem v = e.getValue();
@@ -226,7 +226,6 @@ public class ApiManagerService {
         .filter(Objects::nonNull)
         .toList();
 
-    return list;
   }
 
   private static final String COLON = " : ";
