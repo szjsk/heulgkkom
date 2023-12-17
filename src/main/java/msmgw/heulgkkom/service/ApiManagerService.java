@@ -14,6 +14,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -73,7 +75,8 @@ public class ApiManagerService {
     return saveApiList(new OpenAPIV3Parser().readContents(data), serviceId, data);
   }
 
-  private static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  private final static ObjectMapper mapper = Yaml.mapper();
+  //private static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 
   public List<ApiManagerVersionDto> retrieveApiVersionDomainList(Long serviceId) {

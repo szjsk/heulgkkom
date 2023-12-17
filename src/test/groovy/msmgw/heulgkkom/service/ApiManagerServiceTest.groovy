@@ -41,4 +41,5 @@ class ApiManagerServiceTest extends Specification {
     def getJsonData(){
         return this.getClass().getResource( '/apidocs.json' ).text
     }
+
 }

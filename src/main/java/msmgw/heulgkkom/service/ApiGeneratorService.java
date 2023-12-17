@@ -2,16 +2,15 @@ package msmgw.heulgkkom.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.common.util.StringUtils;
-import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.SpecVersion;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class ApiGeneratorService {
 
   private final AllowApiRepository allowApiRepository;
 
-  private static final String DOMAIN_ID_VARIABLE = "{{domain-id}}";
+  private static final String DOMAIN_ID_VARIABLE = "{{domainId}}";
   private static final String CHANGE_DOMAIN_VARIABLE = "{{change-domain}}";
 
   public String extractGradleTextBy(String serviceName, String group) {
@@ -60,8 +59,8 @@ public class ApiGeneratorService {
 
     String serviceGradleText = api.getServiceGradle();
     return serviceGradleText.replace(DOMAIN_ID_VARIABLE, apiDomain.getDomainId().toString())
-        .replace(CHANGE_DOMAIN_VARIABLE, "http://localhost:8079") //todo change heulgkkom server url
-        ;
+        .replace(CHANGE_DOMAIN_VARIABLE, "http://localhost:8079"); //todo change heulgkkom server url
+
   }
 
   public String makeSpec(Long domainId) throws JsonProcessingException {
@@ -82,19 +81,26 @@ public class ApiGeneratorService {
     return createOpenApi(dto, components);
 
   }
-
-  private static ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
+  private final String PREFIX_SCHEMA = "#/components/schemas/";
+  private final static ObjectMapper mapper = Yaml.mapper();
   private String createOpenApi(List<ApiGeneratorDto> list, Map<String, ApiComponent> components) throws JsonProcessingException {
     OpenAPI openAPI = new OpenAPI(SpecVersion.V30);
-    ObjectMapper jsonMapper = Json.mapper();
+    Info info = new Info();
+    info.setTitle("api gen by js");
+    info.setDescription("test");
+    info.version("0.0.1");
+    openAPI.info(info);
     //ObjectMapper yamlMapper = Yaml.mapper();
 
     //String result = yamlMapper.writerWithDefaultPrettyPrinter().forType(OpenAPI.class).writeValueAsString(openAPI);
     Paths pathMap = new Paths();
     Map<String, Schema> schemas = new HashMap<>();
     //Map<String, List<ApiGeneratorDto>> paths = list.stream().collect(Collectors.groupingBy(o -> o.getServiceName() + "_" + o.getPath()));
-    String prefix = "#/components/schemas/";
+
+
+    Set<String> c = components.values().stream()
+        .flatMap(o -> findString(o.getData()).stream())
+        .collect(Collectors.toSet());
 
     for (ApiGeneratorDto item : list) {
       Operation operation = deserialOperation(item);
@@ -103,24 +109,17 @@ public class ApiGeneratorService {
       operation.addServersItem(server);
       appendPath(pathMap, item, operation);
 
-      Set<String> c = getParameterRef(operation, prefix);
+      c.addAll(getParameterRef(operation));
+      c.addAll(getRequestBody(operation));
+      c.addAll(getResponseRef(operation));
 
-      if (operation.getRequestBody() != null && operation.getRequestBody().getContent() != null) {
-        Set<String> bodys = operation.getRequestBody().getContent().values()
-            .stream().filter(o -> Objects.nonNull(o.getSchema()))
-            .map(o -> o.getSchema().get$ref().replace(prefix, ""))
-            .collect(Collectors.toSet());
-        c.addAll(bodys);
-      }
-
-      Set<String> c2 = getResponseRef(operation, prefix);
-
-      c.addAll(c2);
 
       for(String name: c){
         ApiComponent apiComponent = components.get(name);
         if(apiComponent != null){
-          schemas.put(name, deserialSchema(apiComponent.getData()));
+          Schema schema = deserialSchema(apiComponent.getData());
+          schema.additionalProperties(null);
+          schemas.put(name, schema);
         }
       }
     }
@@ -129,12 +128,38 @@ public class ApiGeneratorService {
 
     Components component = new Components();
     component.setSchemas(schemas);
-
     openAPI.setComponents(component);
-    return jsonMapper.writerWithDefaultPrettyPrinter().forType(OpenAPI.class).writeValueAsString(openAPI);
+
+    return mapper.writerWithDefaultPrettyPrinter().forType(OpenAPI.class).writeValueAsString(openAPI);
   }
 
-  private Set<String> getResponseRef(Operation operation, String prefix) {
+  public Set<String> findString(String value){
+    Set<String> results = new HashSet<>();
+    int s = value.indexOf(PREFIX_SCHEMA);
+
+    while(s > -1){
+      value = value.substring(s);
+      int e = value.indexOf("'");
+      String substring = value.substring(PREFIX_SCHEMA.length(), e);
+      results.add(substring);
+      value = value.substring(e);
+      s = value.indexOf(PREFIX_SCHEMA);
+    }
+    return results;
+
+  }
+
+  private Set<String> getRequestBody(Operation operation) {
+    if (operation.getRequestBody() != null && operation.getRequestBody().getContent() != null) {
+      return operation.getRequestBody().getContent().values()
+          .stream().filter(o -> Objects.nonNull(o.getSchema()))
+          .map(o -> o.getSchema().get$ref().replace(PREFIX_SCHEMA, ""))
+          .collect(Collectors.toSet());
+    }
+    return new HashSet<>();
+  }
+
+  private Set<String> getResponseRef(Operation operation) {
     if (operation.getResponses() == null
         || !operation.getResponses().containsKey("200")
         || operation.getResponses().get("200").getContent() == null) {
@@ -144,19 +169,19 @@ public class ApiGeneratorService {
     return operation.getResponses().get("200")
         .getContent().values().stream()
         .filter(o -> Objects.nonNull(o.getSchema().get$ref()))
-        .map(o -> o.getSchema().get$ref().replace(prefix, ""))
+        .map(o -> o.getSchema().get$ref().replace(PREFIX_SCHEMA, ""))
         .collect(Collectors.toSet());
 
   }
 
-  private Set<String> getParameterRef(Operation operation, String prefix) {
+  private Set<String> getParameterRef(Operation operation) {
     if (operation.getParameters() == null) {
       return new HashSet<>();
     }
     return operation.getParameters().stream()
         .filter(o -> Objects.nonNull(o.getSchema()) && Objects.nonNull(o.getSchema().get$ref()))
         .map(o -> {
-          return o.getSchema().get$ref().replace(prefix, "");
+          return o.getSchema().get$ref().replace(PREFIX_SCHEMA, "");
         })
         .collect(Collectors.toSet());
   }
@@ -171,6 +196,7 @@ public class ApiGeneratorService {
 
   private Schema deserialSchema(String data) {
     try {
+
       return mapper.readValue(data, Schema.class);
     } catch (JsonProcessingException ex) {
       throw new RuntimeException(ex);
