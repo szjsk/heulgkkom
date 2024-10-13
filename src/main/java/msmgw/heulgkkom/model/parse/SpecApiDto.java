@@ -1,4 +1,4 @@
-package msmgw.heulgkkom.model;
+package msmgw.heulgkkom.model.parse;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import msmgw.heulgkkom.model.constant.HttpMethodEnum;
-import org.apache.commons.lang3.StringUtils;
 
 
 @Getter
@@ -17,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ApiDto {
+public class SpecApiDto {
 
   private String path;
   private HttpMethodEnum method;
@@ -26,8 +25,8 @@ public class ApiDto {
   private String requestBody;
   private String response;
 
-  public static ApiDto create(String path, HttpMethodEnum method, Operation op){
-    return new ApiDto(path, method, op, EMPTY, EMPTY, EMPTY);
+  public static SpecApiDto create(String path, HttpMethodEnum method, Operation op){
+    return new SpecApiDto(path, method, op, EMPTY, EMPTY, EMPTY);
   }
 
 }

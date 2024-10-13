@@ -5,13 +5,13 @@ import java.nio.charset.StandardCharsets;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import msmgw.heulgkkom.service.ApiParseService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import msmgw.heulgkkom.model.api.ProjectDTO;
+import msmgw.heulgkkom.service.MyApiService;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import static msmgw.heulgkkom.config.WrapResponseCode.CONFLICT_PROJECT_NAME;
+import static msmgw.heulgkkom.config.WrapResponseCode.SPEC_PARSE_EXCEPTION;
 
 @RestController
 @RequestMapping("/project")
@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class MyApiManagerController {
 
-  private final ApiParseService apiParseService;
+  private final MyApiService myApiService;
 
   @PostMapping("/{projectId}/{versionId}")
   public void createApiVersion(@RequestParam("file") MultipartFile file, @PathVariable Long projectId, @PathVariable String versionId) {
@@ -28,10 +28,24 @@ public class MyApiManagerController {
       try {
           content = new String(file.getBytes(), StandardCharsets.UTF_8);
       } catch (IOException e) {
-          throw new RuntimeException(e);
+          throw SPEC_PARSE_EXCEPTION.toException(e);
       }
 
-      apiParseService.parseSpec(content, projectId, versionId);
+      myApiService.createApis(content, projectId, versionId);
   }
 
+    @PutMapping("/update/{projectId}")
+    public void updateProject(@PathVariable Long projectId, @RequestBody ProjectDTO param) {
+        myApiService.updateProject(projectId, param);
+    }
+
+    @PutMapping("/update/{projectId}/{versionId}")
+    public void updateProjectVersion(@PathVariable Long projectId, @PathVariable String versionId) {
+        myApiService.updateProjectVersion(projectId, versionId);
+    }
+
+    @PostMapping("")
+    public void createProject(@RequestBody ProjectDTO param) {
+        myApiService.createProject(param);
+    }
 }

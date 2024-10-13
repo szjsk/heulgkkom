@@ -8,7 +8,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import msmgw.heulgkkom.model.ApiDto;
+import msmgw.heulgkkom.model.parse.SpecApiDto;
 import msmgw.heulgkkom.model.constant.HttpMethodEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 public class OpenApiSpecParser {
 
 
-    public List<ApiDto> getPathAndParameter(OpenAPI openAPI) {
+    public List<SpecApiDto> getPathAndParameter(OpenAPI openAPI) {
         Paths paths = openAPI.getPaths();
 
         Set<Map.Entry<String, PathItem>> entries = paths.entrySet();
@@ -32,7 +32,7 @@ public class OpenApiSpecParser {
                 .flatMap(e -> {
                     String k = e.getKey();
                     PathItem v = e.getValue();
-                    List<ApiDto> group = new ArrayList<>();
+                    List<SpecApiDto> group = new ArrayList<>();
 
                     group.add(printOperation(openAPI, v.getHead(), HEAD, k));
                     group.add(printOperation(openAPI, v.getGet(), GET, k));
@@ -55,12 +55,12 @@ public class OpenApiSpecParser {
     private static final String CHILD_PREFIX = "\tL";
     private static final String CRLF = "\n";
 
-    public ApiDto printOperation(OpenAPI openAPI, Operation op, HttpMethodEnum type, String path) {
+    public SpecApiDto printOperation(OpenAPI openAPI, Operation op, HttpMethodEnum type, String path) {
         if (op == null) {
             return null;
         }
 
-        ApiDto apiDto = ApiDto.create(path, type, op);
+        SpecApiDto specApiDto = SpecApiDto.create(path, type, op);
 
         if (op.getParameters() != null) {
             StringBuilder parameter = new StringBuilder();
@@ -71,14 +71,14 @@ public class OpenApiSpecParser {
                     parameter.append(CRLF).append(o.getName()).append(COLON).append(o.getSchema().getType());
                 }
             });
-            apiDto.setParameter(parameter.toString());
+            specApiDto.setParameter(parameter.toString());
         }
         if (op.getRequestBody() != null) {
-            apiDto.setRequestBody(printRequestBody(openAPI, op.getRequestBody()));
+            specApiDto.setRequestBody(printRequestBody(openAPI, op.getRequestBody()));
         }
-        apiDto.setResponse(printResponses(openAPI, op.getResponses()));
+        specApiDto.setResponse(printResponses(openAPI, op.getResponses()));
 
-        return apiDto;
+        return specApiDto;
     }
 
 

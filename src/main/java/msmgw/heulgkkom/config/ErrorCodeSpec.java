@@ -7,8 +7,18 @@ public interface ErrorCodeSpec {
 
     String getPrintMessage();
 
-    default RuntimeException toException(String messageArgs) {
-        return new RuntimeException(this.getPrintMessage() + " " + messageArgs);
+    default RuntimeException toException() {
+        return new RuntimeException(this.getPrintMessage());
+    }
+
+    RuntimeException toException(String messageArgs);
+
+    default RuntimeException toException(Throwable cause) {
+        return new RuntimeException(this.getPrintMessage(), cause);
+    }
+
+    default RuntimeException toException(String messageArgs, Throwable cause) {
+        return new RuntimeException(this.getPrintMessage() + " " + messageArgs, cause);
     }
 
     default String getMessage(String locale) {

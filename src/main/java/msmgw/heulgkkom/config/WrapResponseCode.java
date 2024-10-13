@@ -6,7 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum WrapResponseCode implements ErrorCodeSpec {
-    WRONG_PARAMETER("0000", "wrong parameter", true),
+    CONFLICT_PROJECT_NAME("CODE-1001", "project name must unique in envType.", true),
+    SPEC_PARSE_EXCEPTION("CODE-1002", "please check spec file", true),
+    DATA_NOT_FOUND("CODE-1003", "data not found", true),
+
     ;
 
     private final String code;
@@ -19,10 +22,27 @@ public enum WrapResponseCode implements ErrorCodeSpec {
     }
 
     @Override
-    public RuntimeException toException(String messageArgs) {
+    public RuntimeException toException(String messageArgs, Throwable cause) {
         if (this.getIsWarn()) {
-            return new WrapWarnException(this, messageArgs);
+            return new WrapWarnException(this, messageArgs, cause);
         }
-        return new WrapErrorException(this, messageArgs);
+        return new WrapErrorException(this, messageArgs, cause);
+    }
+
+    @Override
+    public RuntimeException toException(String messageArgs) {
+        return this.toException(messageArgs, null);
+
+    }
+
+    @Override
+    public RuntimeException toException(Throwable cause) {
+        return this.toException(null, cause);
+
+    }
+
+    @Override
+    public RuntimeException toException() {
+        return this.toException(null, null);
     }
 }
