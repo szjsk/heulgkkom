@@ -10,7 +10,6 @@ import msmgw.heulgkkom.service.MyApiService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static msmgw.heulgkkom.config.WrapResponseCode.CONFLICT_PROJECT_NAME;
 import static msmgw.heulgkkom.config.WrapResponseCode.SPEC_PARSE_EXCEPTION;
 
 @RestController
