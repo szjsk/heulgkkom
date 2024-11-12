@@ -2,8 +2,7 @@ package msmgw.heulgkkom.model.api;
 
 
 import lombok.*;
-
-import java.util.List;
+import msmgw.heulgkkom.model.constant.HttpMethodEnum;
 
 @Getter
 @Setter
@@ -12,10 +11,9 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class RequestApiDTO {
-    private List<Long> apiId;
+    private Long targetProjectSeq;
+    private String targetPath;
+    private HttpMethodEnum targetMethod;
     private String requestReason;
-    private String responseReason;
-    private String status;
-    private String requestedBy;
-    private String requestedContact;
+    private String requestContact;
 }

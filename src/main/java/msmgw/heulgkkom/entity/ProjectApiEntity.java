@@ -3,6 +3,8 @@ package msmgw.heulgkkom.entity;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,45 +12,42 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import msmgw.heulgkkom.model.constant.HttpMethodEnum;
-import org.springframework.stereotype.Component;
 
 @Entity
-@Table(name = "my_api")
+@Table(name = "project_api")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
 @ToString
-public class MyApi implements Serializable {
+public class ProjectApiEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "api_id")
-    private Long apiId;
+    @Column(name = "api_seq")
+    private Long apiSeq;
 
-    @Column(name = "project_id")
-    private Long projectId;
+    @ManyToOne
+    @JoinColumn(name = "project_seq")
+    private ProjectEntity project;
 
-    @Column(name = "path")
+    @Column(name = "version_id", length = 500)
+    private String versionId;
+
+    @Column(name = "path", length = 2000, nullable = false)
     private String path;
 
-    @Column(name = "method")
+    @Column(name = "method", length = 50, nullable = false)
     @Enumerated(EnumType.STRING)
     private HttpMethodEnum method;
 
-    @Column(name = "spec_body")
-    private String specBody;
-
-    @Column(name = "parameter")
+    @Column(name = "parameter", columnDefinition = "longtext")
     private String parameter;
 
-    @Column(name = "request")
+    @Column(name = "request", columnDefinition = "longtext")
     private String request;
 
-    @Column(name = "response")
+    @Column(name = "response", columnDefinition = "longtext")
     private String response;
-
-    @Column(name = "version")
-    private String version;
 
 }

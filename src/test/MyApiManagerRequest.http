@@ -1,0 +1,101 @@
+### 로그인
+POST http://localhost:8079/login
+Content-Type: application/x-www-form-urlencoded
+
+username=test&password=1234
+
+### 프로젝트 생성.
+POST http://localhost:8079/project
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+{
+  "projectName": "order-heulgkkom-api-example",
+  "envType": "dev",
+  "domainUrl": "http://localhost:8088",
+  "assignMail": "n-dis@hanmail.net"
+}
+
+### 프로젝트 생성. #1
+POST http://localhost:8079/project
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+{
+  "projectName": "my-heulgkkom-api-example",
+  "envType": "dev",
+  "domainUrl": "http://localhost:8087",
+  "assignMail": "n-dis@hanmail.net"
+}
+
+
+### 프로젝트 변수
+@projectSeq = 1
+@my_projectSeq = 2
+@envType = dev
+
+### OPEN API JSON 파일 업로드
+POST http://localhost:8079/project/{{projectSeq}}
+Content-Type: multipart/form-data; boundary=boundary
+Cookie: $RESPONSE['set-cookie']
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="apidocs.json"
+Content-Type: application/json
+
+< ./resources/apidocs.json
+--boundary--
+
+### 프로젝트 version 조회
+GET http://localhost:8079/api/versions/{{projectSeq}}
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+### version 변수
+@versionId = order-heulgkkom-api-example_1731391842370
+
+### version 업데이트
+PUT http://localhost:8079/project/update/{{projectSeq}}/{{versionId}}
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+### API 조회
+GET http://localhost:8079/api/list/{{envType}}?projectName=&apiName=
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+### API 사용 요청
+POST http://localhost:8079/api/request/{{my_projectSeq}}
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+{
+  "targetProjectSeq": 1,
+  "targetPath": "/send/talk-template/{templateName}",
+  "targetMethod": "POST",
+  "requestReason": "test",
+  "requestContact": "yourMail or phone"
+
+}
+
+### API 사용 승인
+POST http://localhost:8079/api/approval/{{projectSeq}}
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']
+
+{
+  "permittedProjectApiSeqs": [1],
+  "status": "APPROVED",
+  "approvalReason": "test",
+  "approvalContact": "yourMail or phone"
+
+}
+
+###
+@projectName = my-heulgkkom-api-example
+@envTypeSpec = dev
+
+### 내 API spec json 생성.
+GET http://localhost:8079/spec/api-json/{{projectName}}?envType={{envTypeSpec}}
+Content-Type: application/json
+Cookie: $RESPONSE['set-cookie']

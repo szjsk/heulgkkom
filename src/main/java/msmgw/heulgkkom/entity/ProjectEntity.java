@@ -1,19 +1,11 @@
 package msmgw.heulgkkom.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.List;
 
 @Entity
 @Table(name = "project")
@@ -23,26 +15,26 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Project implements Serializable {
+public class ProjectEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "project_id")
-    private Long projectId;
+    @Column(name = "project_seq")
+    private Long projectSeq;
 
-    @Column(name = "project_name")
+    @Column(name = "project_name", length=500, nullable = false)
     private String projectName;
 
-    @Column(name = "env_type")
+    @Column(name = "version_id", length = 500)
+    private String versionId;
+
+    @Column(name = "env_type", length=50, nullable = false)
     private String envType;
 
-    @Column(name = "domain_url")
+    @Column(name = "domain_url", length=2000, nullable = false)
     private String domainUrl;
 
-    @Column(name = "assign_mail")
+    @Column(name = "assign_mail", length=2000)
     private String assignMail;
-
-    @Column(name = "version")
-    private String version;
 
     @Column(name = "created_by")
     private String createdBy;
@@ -55,4 +47,11 @@ public class Project implements Serializable {
 
     @Column(name = "modified_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime modifiedAt;
+
+    @OneToMany(mappedBy = "project")
+    private List<ProjectApiEntity> projectApi;
+
+    @OneToMany(mappedBy = "project")
+    private List<ProjectSpecEntity> projectSpec;
+
 }

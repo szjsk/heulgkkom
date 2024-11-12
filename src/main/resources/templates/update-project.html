@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>set Project</title>
+</head>
+<body>
+<h1>set Project</h1>
+<form th:action="@{/update-project}" method="post">
+    <div>
+        <label>project:</label>
+        <input type="text" name="projectName"/>
+    </div>
+    <div>
+        <button type="submit">update</button>
+    </div>
+</form>
+</body>
+</html>
