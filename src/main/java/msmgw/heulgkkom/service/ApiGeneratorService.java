@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponses;
@@ -23,6 +24,7 @@ import msmgw.heulgkkom.repository.PermittedProjectApiRepository;
 import msmgw.heulgkkom.repository.ProjectRepository;
 import msmgw.heulgkkom.repository.ProjectSpecRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,10 +44,11 @@ public class ApiGeneratorService {
     private final PermittedProjectApiRepository permittedProjectApiRepository;
 
     public Map<String, String> makeSpec(String projectName, String envType) {
-
+        //프로젝트 존재여부 체크.
         ProjectEntity projectEntity = projectRepository.findByProjectNameAndEnvType(projectName, envType)
                 .orElseThrow(() -> DATA_NOT_FOUND.toException("proejct not found : " + projectName + " , " + envType));
 
+        //내 프로젝트를 기준으로 승인된 프로젝트 조회
         return permittedProjectApiRepository.findAllByReqProject_ProjectSeqAndStatus(projectEntity.getProjectSeq(), PermittedStatus.APPROVED).stream()
                 .collect(Collectors.groupingBy(PermittedProjectApiEntity::getTargetProject))
                 .entrySet().stream()
@@ -53,12 +56,15 @@ public class ApiGeneratorService {
                     ProjectSpecEntity spec = projectSpecRepository.findByProject_ProjectSeqAndVersionId(e.getKey().getProjectSeq(), e.getKey().getVersionId())
                             .orElseThrow(() -> DATA_NOT_FOUND.toException("spec not found : " + projectName + " , " + envType));
 
+                    //open api에서는 한개의 Path에 여러 Method가 포함된 형태이므로
+                    // 코드 작업을 용이하게 하기 위해 허용된 경로를 기준으로 메소드리스트 추출
                     Map<String, List<HttpMethodEnum>> pathWithMethod = e.getValue().stream()
                             .collect(Collectors.groupingBy(
                                     PermittedProjectApiEntity::getTargetPath,
                                     Collectors.mapping(PermittedProjectApiEntity::getTargetMethod, Collectors.toList())
                             ));
-
+                    //사용할 프로젝트에서 허용되지 않은 API는 제거 한다. 전송된 specBody를 기준으로 제거한다.
+                    //todo 제거가 아닌 조합버전이 나을 수도 있음. 추후 논의하여 변경.
                     String openApiSpec = removeNotUseApi(e.getKey().getDomainUrl(), spec.getSpecBody(), pathWithMethod);
                     return Map.entry(e.getKey().getProjectName(), openApiSpec);
                 })
@@ -81,9 +87,11 @@ public class ApiGeneratorService {
 
         openAPI.setPaths(paths);
 
-        Set<String> allByUseSchemaRefs = findAllByUseSchemaRefs(paths);
+        //허용된 path에서 사용된 schema만 추출하여 사용할 schema만 남긴다.
+        // schema내에서 자식 schema로 사용되는 경우가 있으므로 해당 schema도 추출하여 사용할 schema만 남긴다.
+        Set<String> schemaRefsForPath = findAllByUseComponentRefs(openAPI.getComponents().getSchemas(), findAllByUseSchemaRefs(paths));
 
-        openAPI.getComponents().getSchemas().entrySet().removeIf(e -> !allByUseSchemaRefs.contains(e.getKey()));
+        openAPI.getComponents().getSchemas().entrySet().removeIf(e -> !schemaRefsForPath.contains(e.getKey()));
 
         try {
             return Json.mapper()
@@ -93,6 +101,39 @@ public class ApiGeneratorService {
         } catch (JsonProcessingException e) {
             throw SPEC_CREATE_EXCEPTION.toException("domainUri : " + domainUri, e);
         }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Set<String> findAllByUseComponentRefs(Map<String, Schema> components, Set<String> schemaRefsForPath) {
+        Set<String> allRefs = new HashSet<>(schemaRefsForPath);
+        Set<String> componentsRefs = schemaRefsForPath.stream()
+                .flatMap(ref -> extractAllRefs(components.get(ref)).stream())
+                .collect(Collectors.toSet());
+
+        allRefs.addAll(componentsRefs);
+        return allRefs;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Set<String> extractAllRefs(Schema schema) {
+        Set<String> refs = new HashSet<>();
+        if (Objects.isNull(schema)) {
+            return refs;
+        }
+
+        if (Objects.nonNull(schema.get$ref())) {
+            refs.add(replaceRefs(schema.get$ref()));
+        }
+
+        if (Objects.nonNull(schema.getProperties())) {
+            schema.getProperties().values().forEach(property -> refs.addAll(extractAllRefs((Schema<?>) property)));
+        }
+
+        if (Objects.nonNull(schema.getItems())) {
+            refs.addAll(extractAllRefs(schema.getItems()));
+        }
+
+        return refs;
     }
 
     private Set<String> findAllByUseSchemaRefs(Paths paths) {

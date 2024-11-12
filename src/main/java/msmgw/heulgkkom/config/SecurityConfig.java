@@ -28,7 +28,8 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers(
                                         new AntPathRequestMatcher("/register"),
-                                        new AntPathRequestMatcher("/login")/*,
+                                        new AntPathRequestMatcher("/login"),
+                                        new AntPathRequestMatcher("/spec/**")/*,
                                         PathRequest.toH2Console()*/
                                         ).permitAll()
                                 .anyRequest().authenticated()
